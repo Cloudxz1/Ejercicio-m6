@@ -1,4 +1,4 @@
-import { Pelicula } from './model/pelicula.model.js';
+import { Pelicula } from '../models/pelicula.model.js';
 
 
 export const crearNuevaPelicula = async(req, res) => {

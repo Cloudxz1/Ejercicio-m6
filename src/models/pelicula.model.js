@@ -7,56 +7,111 @@ import {
     updateData
 } from '../utils/fileUtils.js';
 
+import { Validate } from '../utils/Validaciones.js';
+
 export class Pelicula {
 
     #id
-    #nombre
-    #anio
+    #name
+    #year
     #director
-    #duracion
+    #duration
     #active
     
     //FALTA LAS VALIDACIONES
-    constructor(nombre,anio,director,duracion){
-        this.#id = uuid();
-        this.#nombre = nombre;
-        this.#anio = anio;
-        this.#director = director;
-        this.#duracion = duracion;
+    constructor(name,year,director,duration){
+        this.#id = uuidv4();
+        this.#name = Validate.Name(name, 'Nombre');
+        this.#year = Validate.Year(year, 'Anio');
+        this.#director = Validate.Name(director, 'Director');
+        this.#duration = Validate.Duration(duration, 'Duracion');
         this.#active = true;
     }
     
     // Getters
     get id(){ return this.#id }
-    get nombre() { return this.#nombre }
-    get anio() { return this.#anio }
+    get name() { return this.#name }
+    get year() { return this.#year }
     get director() { return this.#director }
-    get duracion() { return this.#duracion }
+    get duration() { return this.#duration }
     get active() { return this.#active }
 
     // Setters con el transcurso del ejercicio se modificará 
-    setId(id) { this.#id = id }
-    setNombre(nombre) { this.#nombre = nombre}
-    setAnio(anio) { this.#anio = anio }
-    setDirector(director) { this.#director = director}
-    setDuracion(duracion) { this.#duracion = duracion }
-    setActive() { this.#active = !this.#active }
+    setId(newId) { this.#id = newId }
+
+    setname(newName) { 
+        try {
+            Validate.ValidateName(newName, 'name');
+            this.#name = newName
+        } catch (error) {
+            throw new ValidationError('Error al modificar el campo nombre', error)
+        }
+    }
+
+    setAnio(newYear) { 
+        try {
+            Validate.ValidateYear(newYear, 'year');
+            this.#year = newYear
+        } catch (error) {
+            throw new ValidationError('Error al modificar el campo anio', error)
+        }
+        
+    }
+
+    setDirector(newDirector) { 
+        try {
+            Validate.ValidateName(newDirector, 'director');
+            this.#director = director
+        } catch (error) {
+            throw new ValidationError('Error al modificar el campo director', error)
+        }
+    }
+
+    setDuracion(newDuration) { 
+        try {
+            Validate.ValidateDuration(newDuration, 'duration');
+            this.#duration = newDuration
+        } catch (error) {
+            throw new ValidationError('Error al modificar el campo duracion', error)
+        }
+    }
+
+    desactive() {
+        console.log(this.#active)
+        this.#active = false
+    }
+    
+    active() {
+        this.#active = true
+    }
 
     getAllProperties(){
         return {
             id: this.#id,
-            nombre: this.#nombre,
-            anio: this.#anio,
+            name: this.#name,
+            year: this.#year,
             director: this.#director,
-            duracion: this.#duracion,
+            duration: this.#duration,
             active: this.#active
+        }
+    }
+
+    static formatearInstancea(objeto) {
+        try {
+            const { id, name, year, director, duration } = objeto;
+            const nuevaInstancia = new Usuario(name, year, director, duration);
+            nuevaInstancia.setId(id)
+    
+            return nuevaInstancia
+        } catch (error) {
+            throw new InternalServerError('Problemas al formatear la instancia de Usuario', error)
         }
     }
 
     static async crear(data) {
         try {
-            const { nombre, anio, director, duracion } = data;
-            const pelicula = new Pelicula(nombre, anio, director, duracion);
+            const { name, year, director, duration } = data;
+            const pelicula = new Pelicula(name, year, director, duration);
             const productObject = pelicula.getAllProperties()
 
             await createDataFile(productObject, 'pelicula.json');
